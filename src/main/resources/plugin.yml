@@ -1,0 +1,13 @@
+name: AllayMcLoginSecurityBackend
+main: com.allaymc.loginsecuritybackend.AllayMcLoginSecurityBackend
+version: 1.0.0
+api-version: "1.21"
+authors: [AllayMc]
+
+commands:
+  register:
+    description: Register cracked account
+    usage: /register <password> <confirm>
+  login:
+    description: Login cracked account
+    usage: /login <password>
