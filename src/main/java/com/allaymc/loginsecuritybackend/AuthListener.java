@@ -1,6 +1,6 @@
 package com.allaymc.loginsecuritybackend;
 
-import net.kyori.adventure.text.Component;
+import fr.xephi.authme.api.v3.AuthMeApi;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -11,42 +11,49 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class AuthListener implements Listener {
 
-    private final AllayMcLoginSecurityBackend plugin;
-    private final AuthService authService;
     private final BackendTrustService trustService;
+    private final FileConfiguration config;
 
-    public AuthListener(AllayMcLoginSecurityBackend plugin, AuthService authService, BackendTrustService trustService) {
-        this.plugin = plugin;
-        this.authService = authService;
+    public AuthListener(BackendTrustService trustService, FileConfiguration config) {
         this.trustService = trustService;
+        this.config = config;
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
+
         Player player = event.getPlayer();
-        FileConfiguration msg = plugin.getMessagesConfig();
 
-        AuthMode mode = trustService.getTrustedMode(player.getName());
-        if (mode == AuthMode.PREMIUM) {
-            authService.trustPremium(player);
-            player.sendActionBar(Component.text(color(msg.getString("premium-welcome", "&aPremium session detected."))));
-            return;
+        boolean premium = trustService.isPremium(player.getName());
+
+        if (premium) {
+
+            try {
+
+                AuthMeApi.getInstance().forceLogin(player);
+
+                player.sendMessage(ChatColor.GREEN + "Premium account detected. Auto logged in.");
+
+            } catch (Exception e) {
+
+                player.sendMessage(ChatColor.RED + "Premium verification failed.");
+
+                e.printStackTrace();
+            }
         }
+        else {
 
-        if (authService.isRegistered(player.getName())) {
-            player.sendMessage(color(msg.getString("prefix")) + color(msg.getString("login-prompt")));
-        } else {
-            player.sendMessage(color(msg.getString("prefix")) + color(msg.getString("register-prompt")));
+            player.sendMessage(ChatColor.YELLOW + "Please login or register.");
+
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        authService.clear(event.getPlayer());
-        trustService.clear(event.getPlayer().getName());
-    }
 
-    private String color(String s) {
-        return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
+        Player player = event.getPlayer();
+
+        trustService.clearSession(player.getName());
+
     }
 }
