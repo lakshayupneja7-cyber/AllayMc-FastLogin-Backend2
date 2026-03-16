@@ -1,0 +1,2 @@
+plugin-message-channel: "allaymc:auth"
+session-remember-seconds: 21600
