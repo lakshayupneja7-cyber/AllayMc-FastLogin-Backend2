@@ -1,0 +1,7 @@
+prefix: "&8[&bAllayMc&8] &7"
+register-prompt: "&ePlease register with /register <password> <confirm>"
+login-prompt: "&ePlease login with /login <password>"
+premium-welcome: "&aPremium session detected."
+login-success: "&aLogin successful."
+register-success: "&aRegistration successful."
+wrong-password: "&cWrong password."
